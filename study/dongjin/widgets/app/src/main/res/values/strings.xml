@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">widgets</string>
+    <string name="button1_text">i`m button</string>
+    <string name="text_hello">hello</string>
+</resources>
