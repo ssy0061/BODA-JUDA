@@ -31,6 +31,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions
 import com.google.firebase.ml.common.modeldownload.FirebaseModelManager
 import com.google.firebase.ml.custom.FirebaseCustomRemoteModel
+import com.google.firebase.perf.FirebasePerformance
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -44,6 +45,9 @@ class MainActivity : AppCompatActivity() {
   private var yesButton: Button? = null
   private var predictedTextView: TextView? = null
   private var digitClassifier = DigitClassifier(this)
+
+  // firebase monitoring
+  private val firebasePerformance = FirebasePerformance.getInstance()
 
   @SuppressLint("ClickableViewAccessibility")
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,6 +93,16 @@ class MainActivity : AppCompatActivity() {
   // firebase에서 ML 모델 다운로드
   private fun setupDigitClassifier() {
     downloadModel("mnist_v1")
+
+    // firebase monitoring
+    // Add these lines to create and start the trace
+    val downloadTrace = firebasePerformance.newTrace("download_model")
+    downloadTrace.start()
+    downloadModel("mnist_v1")
+      // Add these lines to stop the trace on success
+      .addOnSuccessListener {
+        downloadTrace.stop()
+      }
   }
 
   private fun downloadModel(modelName: String): Task<Void> {
@@ -138,9 +152,15 @@ class MainActivity : AppCompatActivity() {
     val bitmap = drawView?.getBitmap()
 
     if ((bitmap != null) && (digitClassifier.isInitialized)) {
+      // Add these lines to create and start the trace
+      val classifyTrace = firebasePerformance.newTrace("classify")
+      classifyTrace.start()
+
       digitClassifier
         .classifyAsync(bitmap)
         .addOnSuccessListener { resultText ->
+          // Add this line to stop the trace on success
+          classifyTrace.stop()
           predictedTextView?.text = resultText
         }
         .addOnFailureListener { e ->

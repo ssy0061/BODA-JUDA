@@ -51,4 +51,7 @@ dependencies {
 
     // firebase analytics
     implementation 'com.google.firebase:firebase-analytics-ktx:17.4.1'
+
+    // firebase monitoring
+    implementation 'com.google.firebase:firebase-perf:19.0.7'
 }
