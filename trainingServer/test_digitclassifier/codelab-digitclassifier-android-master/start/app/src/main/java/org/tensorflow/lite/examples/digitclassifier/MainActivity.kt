@@ -26,6 +26,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.divyanshu.draw.widget.DrawView
 import com.google.android.gms.tasks.Task
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions
 import com.google.firebase.ml.common.modeldownload.FirebaseModelManager
 import com.google.firebase.ml.custom.FirebaseCustomRemoteModel
@@ -76,6 +78,12 @@ class MainActivity : AppCompatActivity() {
 
       true
     }
+
+    // Setup YES button
+    yesButton?.setOnClickListener {
+      Firebase.analytics.logEvent("correct_inference", null)
+    }
+
     setupDigitClassifier()
   }
   // firebase에서 ML 모델 다운로드
