@@ -25,6 +25,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.divyanshu.draw.widget.DrawView
+import com.google.android.gms.tasks.Task
+import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions
+import com.google.firebase.ml.common.modeldownload.FirebaseModelManager
+import com.google.firebase.ml.custom.FirebaseCustomRemoteModel
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -74,10 +78,48 @@ class MainActivity : AppCompatActivity() {
     }
     setupDigitClassifier()
   }
-
+  // firebase에서 ML 모델 다운로드
   private fun setupDigitClassifier() {
-    digitClassifier.initialize(loadModelFile())
+    downloadModel("mnist_v1")
   }
+
+  private fun downloadModel(modelName: String): Task<Void> {
+    val remoteModel = FirebaseCustomRemoteModel.Builder(modelName).build()
+    val firebaseModelManager = FirebaseModelManager.getInstance()
+    return firebaseModelManager
+      .isModelDownloaded(remoteModel)
+      .continueWithTask { task ->
+        // Create update condition if model is already downloaded, otherwise create download
+        // condition.
+        val conditions = if (task.result != null && task.result == true) {
+          FirebaseModelDownloadConditions.Builder()
+            .requireWifi()
+            .build() // Update condition that requires wifi.
+        } else {
+          FirebaseModelDownloadConditions.Builder().build(); // Download condition.
+        }
+        firebaseModelManager.download(remoteModel, conditions)
+      }
+      .addOnSuccessListener {
+        firebaseModelManager.getLatestModelFile(remoteModel)
+          .addOnCompleteListener {
+            val model = it.result
+            if (model == null) {
+              showToast("Failed to get model file.")
+            } else {
+              showToast("Downloaded remote model: $model")
+              digitClassifier.initialize(model)
+            }
+          }
+      }
+      .addOnFailureListener {
+        showToast("Model download failed for digit classifier, please check your connection.")
+      }
+  }
+  // not local
+//  private fun setupDigitClassifier() {
+//    digitClassifier.initialize(loadModelFile())
+//  }
 
   override fun onDestroy() {
     digitClassifier.close()
