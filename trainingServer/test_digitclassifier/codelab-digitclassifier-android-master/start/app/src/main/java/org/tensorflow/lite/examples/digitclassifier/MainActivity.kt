@@ -137,7 +137,10 @@ class MainActivity : AppCompatActivity() {
   private fun configureRemoteConfig() {
     remoteConfig = Firebase.remoteConfig
     val configSettings = remoteConfigSettings {
-      minimumFetchIntervalInSeconds = 3600
+    // 업데이트 간격을 너무 길게해서 변수 변경이 즉시 반영되지 않았던 문제
+        // https://firebase.google.com/docs/remote-config/get-started?platform=android&hl=ko#throttling
+        // 개발 도중에는 짧게해서 사용해도 문제 없지만 서비스 중에는 업데이트 시간 고려해야함
+      minimumFetchIntervalInSeconds = 5
     }
     remoteConfig.setConfigSettingsAsync(configSettings)
   }
