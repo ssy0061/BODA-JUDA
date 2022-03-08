@@ -54,4 +54,7 @@ dependencies {
 
     // firebase monitoring
     implementation 'com.google.firebase:firebase-perf:19.0.7'
+
+    // 원격 설정을 통한 모델 선택
+    implementation 'com.google.firebase:firebase-config-ktx:19.1.4'
 }

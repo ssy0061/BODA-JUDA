@@ -32,6 +32,13 @@ import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditio
 import com.google.firebase.ml.common.modeldownload.FirebaseModelManager
 import com.google.firebase.ml.custom.FirebaseCustomRemoteModel
 import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.perf.internal.RemoteConfigManager
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.RemoteConfigComponent
+import com.google.firebase.remoteconfig.RemoteConfigConstants
+import com.google.firebase.remoteconfig.RemoteConfigRegistrar
+import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -40,11 +47,13 @@ import java.nio.channels.FileChannel
 
 class MainActivity : AppCompatActivity() {
 
+  lateinit var remoteConfig: FirebaseRemoteConfig
   private var drawView: DrawView? = null
   private var clearButton: Button? = null
   private var yesButton: Button? = null
   private var predictedTextView: TextView? = null
   private var digitClassifier = DigitClassifier(this)
+
 
   // firebase monitoring
   private val firebasePerformance = FirebasePerformance.getInstance()
@@ -91,19 +100,48 @@ class MainActivity : AppCompatActivity() {
     setupDigitClassifier()
   }
   // firebase에서 ML 모델 다운로드
-  private fun setupDigitClassifier() {
-    downloadModel("mnist_v1")
+//  private fun setupDigitClassifier() {
+//    val modelName = "mnist_v2"
+//    downloadModel(modelName)
+//
+//    // firebase monitoring
+//    // Add these lines to create and start the trace
+//    val downloadTrace = firebasePerformance.newTrace("download_model")
+//    downloadTrace.start()
+//    downloadModel(modelName)
+//      // Add these lines to stop the trace on success
+//      .addOnSuccessListener {
+//        downloadTrace.stop()
+//      }
+//  }
 
-    // firebase monitoring
-    // Add these lines to create and start the trace
-    val downloadTrace = firebasePerformance.newTrace("download_model")
-    downloadTrace.start()
-    downloadModel("mnist_v1")
-      // Add these lines to stop the trace on success
-      .addOnSuccessListener {
-        downloadTrace.stop()
+
+  private fun setupDigitClassifier() {
+    configureRemoteConfig()
+
+    remoteConfig.fetchAndActivate()
+      .addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+          val modelName = remoteConfig.getString("model_name")
+          val downloadTrace = firebasePerformance.newTrace("download_model")
+          downloadTrace.start()
+          downloadModel(modelName)
+            .addOnSuccessListener {
+              downloadTrace.stop()
+            }
+        } else {
+          showToast("Failed to fetch model name.")
+        }
       }
   }
+  private fun configureRemoteConfig() {
+    remoteConfig = Firebase.remoteConfig
+    val configSettings = remoteConfigSettings {
+      minimumFetchIntervalInSeconds = 3600
+    }
+    remoteConfig.setConfigSettingsAsync(configSettings)
+  }
+
 
   private fun downloadModel(modelName: String): Task<Void> {
     val remoteModel = FirebaseCustomRemoteModel.Builder(modelName).build()
@@ -196,4 +234,6 @@ class MainActivity : AppCompatActivity() {
 
     private const val MODEL_FILE = "mnist.tflite"
   }
+
+
 }
