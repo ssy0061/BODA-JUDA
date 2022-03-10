@@ -17,10 +17,15 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val button = findViewById<Button>(R.id.button).apply {
+        // TODO: 버튼 선택에 따른 인터페이스 종류 intent로 넘기기
+        val button = findViewById<Button>(R.id.button_main_use_button).apply {
             setOnClickListener {
                 startActivity(Intent(this@MainActivity, LivePreviewActivity::class.java))
             }
+        }
+
+        val gestureButton = findViewById<Button>(R.id.button_main_use_gesture).apply {
+            isEnabled = false
         }
 
         if (!allRuntimePermissionsGranted()) {
