@@ -21,14 +21,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
+import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
-import android.widget.ArrayAdapter
-import android.widget.CompoundButton
-import android.widget.ImageView
-import android.widget.Spinner
-import android.widget.Toast
-import android.widget.ToggleButton
 import com.aeye.thirdeye.CameraSource
 import com.aeye.thirdeye.CameraSourcePreview
 import com.aeye.thirdeye.GraphicOverlay
@@ -50,8 +44,6 @@ class LivePreviewActivity :
     private var graphicOverlay: GraphicOverlay? = null
     private var selectedModel = OBJECT_DETECTION_CUSTOM
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
@@ -68,6 +60,25 @@ class LivePreviewActivity :
         }
 
         createCameraSource(selectedModel)
+
+        val detailButton = findViewById<Button>(R.id.button_live_preview_detail).apply { 
+            setOnClickListener {
+                // TODO: 상세 정보 음성 안내  
+            }
+        }
+        
+        val refreshButton = findViewById<Button>(R.id.button_live_preview_refresh).apply { 
+            setOnClickListener {
+                // TODO: 재인식 
+            }
+        }
+        
+        val voiceButton = findViewById<Button>(R.id.button_live_preview_voice).apply { 
+            setOnClickListener {
+                // TODO: 라벨 음성안내 
+            }
+        }
+
     }
 
     @Synchronized
