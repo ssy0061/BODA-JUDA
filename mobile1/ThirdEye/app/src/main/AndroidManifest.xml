@@ -22,12 +22,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ThirdEye">
-
+        <activity
+            android:name=".CameraXSourceActivity"
+            android:exported="false" />
         <activity
             android:name=".LivePreviewActivity"
             android:exported="false" />
-
-
         <activity
             android:name=".MainActivity"
             android:exported="true">
