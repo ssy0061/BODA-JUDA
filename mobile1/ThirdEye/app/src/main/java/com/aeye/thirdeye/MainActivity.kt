@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         val button = findViewById<Button>(R.id.button_main_use_button).apply {
             setOnClickListener {
                 startActivity(Intent(this@MainActivity, LivePreviewActivity::class.java))
+//                startActivity(Intent(this@MainActivity, CameraXSourceActivity::class.java))
             }
         }
 
