@@ -28,6 +28,7 @@ import com.aeye.thirdeye.CameraSourcePreview
 import com.aeye.thirdeye.GraphicOverlay
 import com.aeye.thirdeye.R
 import com.aeye.thirdeye.preference.PreferenceUtils
+import com.aeye.thirdeye.vibrator.TextToSpeechUtil
 import com.google.android.gms.common.annotation.KeepName
 import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.vision.demo.kotlin.objectdetector.ObjectDetectorProcessor
@@ -72,10 +73,13 @@ class LivePreviewActivity :
                 // TODO: 재인식 
             }
         }
-        
+
+        // object detection의 결과
+        val result = findViewById<TextView>(R.id.tv_detection_result)
+
         val voiceButton = findViewById<Button>(R.id.button_live_preview_voice).apply { 
             setOnClickListener {
-                // TODO: 라벨 음성안내 
+                TextToSpeechUtil(this@LivePreviewActivity, result.text.toString())
             }
         }
 

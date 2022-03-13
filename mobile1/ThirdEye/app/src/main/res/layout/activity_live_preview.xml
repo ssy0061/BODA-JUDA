@@ -23,6 +23,7 @@
         app:layout_constraintBottom_toBottomOf="@id/preview_view"/>
 
     <TextView
+        android:id="@+id/tv_detection_result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="44sp"
