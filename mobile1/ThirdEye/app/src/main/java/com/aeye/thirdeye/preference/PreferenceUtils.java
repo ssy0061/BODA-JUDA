@@ -31,6 +31,7 @@ import com.aeye.thirdeye.CameraSource;
 import com.aeye.thirdeye.R;
 import com.google.android.gms.common.images.Size;
 import com.google.common.base.Preconditions;
+import com.google.mlkit.common.model.CustomRemoteModel;
 import com.google.mlkit.common.model.LocalModel;
 import com.google.mlkit.vision.objects.ObjectDetectorOptionsBase.DetectorMode;
 import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions;
@@ -145,6 +146,41 @@ public class PreferenceUtils {
         R.string.pref_key_still_image_object_detector_enable_multiple_objects,
         R.string.pref_key_still_image_object_detector_enable_classification,
         CustomObjectDetectorOptions.SINGLE_IMAGE_MODE);
+  }
+
+  public static CustomObjectDetectorOptions getCustomObjectDetectorOptionsForLivePreviewWithRemoteModel(
+          Context context, CustomRemoteModel remoteModel) {
+    return getCustomObjectDetectorOptionsWithRemoteModel(
+            context,
+            remoteModel,
+            R.string.pref_key_live_preview_object_detector_enable_multiple_objects,
+            R.string.pref_key_live_preview_object_detector_enable_classification,
+            CustomObjectDetectorOptions.STREAM_MODE);
+  }
+
+  private static CustomObjectDetectorOptions getCustomObjectDetectorOptionsWithRemoteModel(
+          Context context,
+          CustomRemoteModel remoteModel,
+          @StringRes int prefKeyForMultipleObjects,
+          @StringRes int prefKeyForClassification,
+          @DetectorMode int mode) {
+
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+    boolean enableMultipleObjects =
+            sharedPreferences.getBoolean(context.getString(prefKeyForMultipleObjects), false);
+    boolean enableClassification =
+            sharedPreferences.getBoolean(context.getString(prefKeyForClassification), true);
+
+    CustomObjectDetectorOptions.Builder builder =
+            new CustomObjectDetectorOptions.Builder(remoteModel).setDetectorMode(mode);
+    if (enableMultipleObjects) {
+      builder.enableMultipleObjects();
+    }
+    if (enableClassification) {
+      builder.enableClassification().setMaxPerObjectLabelCount(1);
+    }
+    return builder.build();
   }
 
   public static CustomObjectDetectorOptions getCustomObjectDetectorOptionsForLivePreview(
