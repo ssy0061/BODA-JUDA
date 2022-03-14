@@ -13,13 +13,14 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
+import com.aeye.thirdeye.objectdetector.ObjectGraphic
 import com.aeye.thirdeye.preference.PreferenceUtils
 import com.google.android.gms.common.annotation.KeepName
 import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.vision.camera.CameraSourceConfig
 import com.google.mlkit.vision.camera.CameraXSource
 import com.google.mlkit.vision.camera.DetectionTaskCallback
-import com.google.mlkit.vision.demo.kotlin.objectdetector.ObjectGraphic
+
 import com.google.mlkit.vision.objects.DetectedObject
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.ObjectDetector
