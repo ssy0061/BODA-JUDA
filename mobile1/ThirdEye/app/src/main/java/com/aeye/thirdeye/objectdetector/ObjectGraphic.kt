@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.mlkit.vision.demo.kotlin.objectdetector
+package com.aeye.thirdeye.objectdetector
 
 import android.graphics.Canvas
 import android.graphics.Color
