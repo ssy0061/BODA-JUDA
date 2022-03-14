@@ -1,6 +1,10 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'com.google.gms.google-services'
+    id 'kotlin-parcelize'
 }
 
 android {
@@ -86,5 +90,4 @@ dependencies {
     implementation 'com.google.mlkit:linkfirebase:17.0.0'
     implementation 'com.google.firebase:firebase-config-ktx:21.0.1'
     implementation 'com.google.firebase:firebase-perf-ktx:20.0.5'
-    implementation 'com.google.firebase:firebase-ml-model-interpreter:'
 }
