@@ -30,7 +30,16 @@ import com.aeye.thirdeye.R
 import com.aeye.thirdeye.preference.PreferenceUtils
 import com.aeye.thirdeye.vibrator.TextToSpeechUtil
 import com.google.android.gms.common.annotation.KeepName
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.google.mlkit.common.model.CustomRemoteModel
+import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.common.model.LocalModel
+import com.google.mlkit.common.model.RemoteModelManager
+import com.google.mlkit.linkfirebase.FirebaseModelSource
 import com.google.mlkit.vision.demo.kotlin.objectdetector.ObjectDetectorProcessor
 import java.io.IOException
 import java.util.ArrayList
@@ -44,6 +53,10 @@ class LivePreviewActivity :
     private var preview: CameraSourcePreview? = null
     private var graphicOverlay: GraphicOverlay? = null
     private var selectedModel = OBJECT_DETECTION_CUSTOM
+
+    lateinit var remoteConfig: FirebaseRemoteConfig
+    // firebase monitoring
+    private val firebasePerformance = FirebasePerformance.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,14 +141,61 @@ class LivePreviewActivity :
                     )
                 }
                 OBJECT_DETECTION_CUSTOM -> {
-                    Log.i(TAG, "Using Custom Object Detector Processor")
+                    Log.i("확인", "Using Custom Object Detector Processor")
                     val localModel =
-                        LocalModel.Builder().setAssetFilePath("custom_models/object_labeler.tflite").build()
-                    val customObjectDetectorOptions =
-                        PreferenceUtils.getCustomObjectDetectorOptionsForLivePreview(this, localModel)
-                    cameraSource!!.setMachineLearningFrameProcessor(
-                        ObjectDetectorProcessor(this, customObjectDetectorOptions)
-                    )
+//            LocalModel.Builder().setAssetFilePath("custom_models/snack_01_410.tflite").build()
+                        LocalModel.Builder().setAssetFilePath("custom_models/snack_02_17.tflite").build()
+
+                    // remoteModel + firebase 원격 구성 추가
+                    configureRemoteConfig()
+                    remoteConfig.fetchAndActivate()
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                val modelName = remoteConfig.getString("model_name")
+                                val downloadTrace = firebasePerformance.newTrace("download_model")
+                                downloadTrace.start()
+                                Log.d("확인", "modelName: $modelName")
+
+                                // Load the remoteModel (기존 모델 하나만 다운로드하는 코드와 같음)
+                                val remoteModel =
+                                    CustomRemoteModel
+                                        .Builder(FirebaseModelSource.Builder(modelName).build())
+                                        .build()
+                                Log.d("확인", "localModel: $localModel")
+                                Log.d("확인", "remoteModel: $remoteModel")
+                                val remoteModelManager = RemoteModelManager.getInstance()
+
+                                // 모델 다운로드 확인 후 실행
+                                remoteModelManager.isModelDownloaded(remoteModel)
+                                    .addOnSuccessListener {
+                                        Log.d("확인", "다운로드 확인: $it")
+                                        // false이면 모델 다운로드
+                                        if (!it) {
+                                            val downloadConditions = DownloadConditions.Builder()
+                                                .requireWifi()
+                                                .build()
+                                            remoteModelManager.download(remoteModel, downloadConditions)
+                                                .addOnSuccessListener {
+                                                    Log.d("확인", "다운로드 성공")
+                                                    // 모델 적용하여 실행
+                                                    startObjectDetectorWithRemoteModel(remoteModel)
+                                                }
+                                                .addOnFailureListener {
+                                                    Log.d("확인", "다운로드 실패")
+                                                }
+                                        } else {
+                                            // 모델 적용하여 실행
+                                            startObjectDetectorWithRemoteModel(remoteModel)
+                                        }
+                                    }
+                                    .addOnFailureListener {
+                                        Log.d("확인", "다운로드 확인 불가")
+                                    }
+                            } else {
+                                showToast("Failed to fetch model name.")
+                            }
+                        }
+
                 }
                 CUSTOM_AUTOML_OBJECT_DETECTION -> {
                     Log.i(TAG, "Using Custom AutoML Object Detector Processor")
@@ -162,6 +222,38 @@ class LivePreviewActivity :
             )
                 .show()
         }
+    }
+
+    // 원격 구성을 통해 모델 선택하기
+    // Firebase 원격 구성
+    private fun configureRemoteConfig() {
+        remoteConfig = Firebase.remoteConfig
+        val configSettings = remoteConfigSettings {
+            // 업데이트 간격을 너무 길게해서 변수 변경이 즉시 반영되지 않았던 문제
+            // https://firebase.google.com/docs/remote-config/get-started?platform=android&hl=ko#throttling
+            // 개발 도중에는 짧게해서 사용해도 문제 없지만 서비스 중에는 업데이트 시간 고려해야함
+            minimumFetchIntervalInSeconds = 5
+        }
+
+        remoteConfig.setConfigSettingsAsync(configSettings)
+    }
+
+    // 모델 적용하여 실행
+    private fun startObjectDetectorWithRemoteModel(remoteModel: CustomRemoteModel) {
+        val customObjectDetectorOptions =
+            PreferenceUtils.getCustomObjectDetectorOptionsForLivePreviewWithRemoteModel(this, remoteModel)
+        Log.d("확인", "옵션: ${customObjectDetectorOptions}")
+        cameraSource!!.setMachineLearningFrameProcessor(
+            ObjectDetectorProcessor(this, customObjectDetectorOptions)
+        )
+    }
+
+    private fun showToast(text: String) {
+        Toast.makeText(
+            this,
+            text,
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     /**
