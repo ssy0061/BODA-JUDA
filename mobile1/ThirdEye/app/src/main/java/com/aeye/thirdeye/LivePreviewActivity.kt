@@ -23,10 +23,7 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
-import com.aeye.thirdeye.CameraSource
-import com.aeye.thirdeye.CameraSourcePreview
-import com.aeye.thirdeye.GraphicOverlay
-import com.aeye.thirdeye.R
+import com.aeye.thirdeye.objectdetector.ObjectDetectorProcessor
 import com.aeye.thirdeye.preference.PreferenceUtils
 import com.aeye.thirdeye.vibrator.TextToSpeechUtil
 import com.google.android.gms.common.annotation.KeepName
@@ -40,7 +37,6 @@ import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.common.model.RemoteModelManager
 import com.google.mlkit.linkfirebase.FirebaseModelSource
-import com.google.mlkit.vision.demo.kotlin.objectdetector.ObjectDetectorProcessor
 import java.io.IOException
 import java.util.ArrayList
 
