@@ -64,6 +64,23 @@ class LivePreviewActivity :
         Log.d(TAG, "onCreate")
         setContentView(R.layout.activity_live_preview)
 
+        init()
+
+        if(!allRuntimePermissionsGranted()) {
+            getRuntimePermissions()
+        }
+
+        if(isCameraPermissionAccepted()) {
+            createCameraSource(selectedModel)
+        } else {
+            showToast("카메라 권한을 켜주세요")
+            TextToSpeechUtil(this, "카메라 권한을 켜주세요")
+        }
+    }
+
+    private fun isCameraPermissionAccepted(): Boolean = isPermissionGranted(this, Manifest.permission.CAMERA)
+
+    private fun init() {
         preview = findViewById(R.id.preview_view)
         if (preview == null) {
             Log.d(TAG, "Preview is null")
@@ -74,24 +91,22 @@ class LivePreviewActivity :
             Log.d(TAG, "graphicOverlay is null")
         }
 
-        createCameraSource(selectedModel)
-
-        val detailButton = findViewById<Button>(R.id.button_live_preview_detail).apply { 
+        val detailButton = findViewById<Button>(R.id.button_live_preview_detail).apply {
             setOnClickListener {
-                // TODO: 상세 정보 음성 안내  
+                // TODO: 상세 정보 음성 안내
             }
         }
-        
-        val refreshButton = findViewById<Button>(R.id.button_live_preview_refresh).apply { 
+
+        val refreshButton = findViewById<Button>(R.id.button_live_preview_refresh).apply {
             setOnClickListener {
-                // TODO: 재인식 
+                // TODO: 재인식
             }
         }
 
         // object detection의 결과
         val result = findViewById<TextView>(R.id.tv_detection_result)
 
-        val voiceButton = findViewById<Button>(R.id.button_live_preview_voice).apply { 
+        val voiceButton = findViewById<Button>(R.id.button_live_preview_voice).apply {
             setOnClickListener {
                 TextToSpeechUtil(this@LivePreviewActivity, result.text.toString())
             }
