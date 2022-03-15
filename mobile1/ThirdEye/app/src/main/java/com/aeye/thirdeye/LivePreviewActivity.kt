@@ -55,14 +55,21 @@ class LivePreviewActivity :
     private var graphicOverlay: GraphicOverlay? = null
     private var selectedModel = OBJECT_DETECTION_CUSTOM
 
+    // firebase 관련 변수들
     lateinit var remoteConfig: FirebaseRemoteConfig
-    // firebase monitoring
-    private val firebasePerformance = FirebasePerformance.getInstance()
+    // OBJECT_DETECTION_CUSTOM LocalModel
+    private val aEyeLocalModel =
+//            LocalModel.Builder().setAssetFilePath("custom_models/snack_01_410.tflite").build()
+        LocalModel.Builder().setAssetFilePath("custom_models/snack_02_17.tflite").build()
+    lateinit var aEyeRemoteModel: CustomRemoteModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
         setContentView(R.layout.activity_live_preview)
+
+        // 모델 다운로드 확인 & 모델 다운로드
+        getModelName()
 
         init()
 
@@ -158,59 +165,9 @@ class LivePreviewActivity :
                 }
                 OBJECT_DETECTION_CUSTOM -> {
                     Log.i("확인", "Using Custom Object Detector Processor")
-                    val localModel =
-//            LocalModel.Builder().setAssetFilePath("custom_models/snack_01_410.tflite").build()
-                        LocalModel.Builder().setAssetFilePath("custom_models/snack_02_17.tflite").build()
-
-                    // remoteModel + firebase 원격 구성 추가
-                    configureRemoteConfig()
-                    remoteConfig.fetchAndActivate()
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                val modelName = remoteConfig.getString("model_name")
-                                val downloadTrace = firebasePerformance.newTrace("download_model")
-                                downloadTrace.start()
-                                Log.d("확인", "modelName: $modelName")
-
-                                // Load the remoteModel (기존 모델 하나만 다운로드하는 코드와 같음)
-                                val remoteModel =
-                                    CustomRemoteModel
-                                        .Builder(FirebaseModelSource.Builder(modelName).build())
-                                        .build()
-                                Log.d("확인", "localModel: $localModel")
-                                Log.d("확인", "remoteModel: $remoteModel")
-                                val remoteModelManager = RemoteModelManager.getInstance()
-
-                                // 모델 다운로드 확인 후 실행
-                                remoteModelManager.isModelDownloaded(remoteModel)
-                                    .addOnSuccessListener {
-                                        Log.d("확인", "다운로드 확인: $it")
-                                        // false이면 모델 다운로드
-                                        if (!it) {
-                                            val downloadConditions = DownloadConditions.Builder()
-                                                .requireWifi()
-                                                .build()
-                                            remoteModelManager.download(remoteModel, downloadConditions)
-                                                .addOnSuccessListener {
-                                                    Log.d("확인", "다운로드 성공")
-                                                    // 모델 적용하여 실행
-                                                    startObjectDetectorWithRemoteModel(remoteModel)
-                                                }
-                                                .addOnFailureListener {
-                                                    Log.d("확인", "다운로드 실패")
-                                                }
-                                        } else {
-                                            // 모델 적용하여 실행
-                                            startObjectDetectorWithRemoteModel(remoteModel)
-                                        }
-                                    }
-                                    .addOnFailureListener {
-                                        Log.d("확인", "다운로드 확인 불가")
-                                    }
-                            } else {
-                                showToast("Failed to fetch model name.")
-                            }
-                        }
+                    // local model은 상단에 있음
+                    // 다운로드 확인 & 실행
+                    checkModelAndStart()
 
                 }
                 CUSTOM_AUTOML_OBJECT_DETECTION -> {
@@ -240,6 +197,94 @@ class LivePreviewActivity :
         }
     }
 
+    // 원격 구성 모델 이름 가져오기
+    private fun getModelName() {
+        var modelName: String
+        configureRemoteConfig()
+        remoteConfig.fetchAndActivate()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    modelName = remoteConfig.getString("model_name")
+                    Log.d("확인", "modelName: $modelName")
+                    // 모델 다운로드 확인 & 다운로드
+                    checkRemoteModel(modelName)
+                } else {
+                    showToast("Failed to fetch model name.")
+                    Log.d("확인", "연결 실패")
+                }
+            }
+    }
+
+    // firebase 모델 다운로드 확인 & 다운로드
+    private fun checkRemoteModel(modelName: String) {
+
+        aEyeRemoteModel =
+            CustomRemoteModel
+                .Builder(FirebaseModelSource.Builder(modelName).build())
+                .build()
+        Log.d("확인", "localModel: $aEyeLocalModel")
+        Log.d("확인", "remoteModel: $aEyeRemoteModel")
+        val remoteModelManager = RemoteModelManager.getInstance()
+
+        remoteModelManager.isModelDownloaded(aEyeRemoteModel)
+            .addOnSuccessListener {
+                Log.d("확인", "다운로드 확인: $it")
+                if (!it) {
+                    // false이면 모델 다운로드
+                    Log.d("확인", "다운로드 시작")
+                    downloadRemoteModel(remoteModelManager, aEyeRemoteModel)
+                } else {
+                    Log.d("확인", "다운받은 RemoteModel로 실행(checkRemoteModel)")
+                    startObjectDetectorWithRemoteModel(aEyeRemoteModel)
+                }
+            }
+            .addOnFailureListener {
+                Log.d("확인", "다운로드 확인 불가")
+            }
+    }
+
+    // firebase 모델 다운로드
+    private fun downloadRemoteModel(manager: RemoteModelManager, remoteModel: CustomRemoteModel) {
+        val downloadConditions = DownloadConditions.Builder()
+            .requireWifi()
+            .build()
+        manager.download(remoteModel, downloadConditions)
+            .addOnSuccessListener {
+                Log.d("확인", "다운로드 성공")
+                // 다운로드가 느려서 완료되면 다운받은 RemoteModel로 실행
+                Log.d("확인", "다운받은 RemoteModel로 실행(downloadRemoteModel)")
+                startObjectDetectorWithRemoteModel(aEyeRemoteModel)
+
+            }
+            .addOnFailureListener {
+                Log.d("확인", "다운로드 실패")
+            }
+    }
+
+    // 모델 다운로드 확인 &  실행
+    private fun checkModelAndStart() {
+        if (::aEyeRemoteModel.isInitialized) {
+            val remoteModelManager = RemoteModelManager.getInstance()
+
+            remoteModelManager.isModelDownloaded(aEyeRemoteModel)
+                .addOnSuccessListener {
+                    Log.d("확인", "다운로드 확인: $it")
+                    if (it) {
+                        // 실행
+                        Log.d("확인", "다운받은 RemoteModel로 실행(checkModelAndStart)")
+                        startObjectDetectorWithRemoteModel(aEyeRemoteModel)
+                    }
+                }
+                .addOnFailureListener {
+                    Log.d("확인", "다운로드 확인 불가")
+                }
+        } else {
+            Log.d("확인", "LocalModel로 실행")
+            startObjectDetectorWithLocalModel(aEyeLocalModel)
+        }
+
+    }
+
     // 원격 구성을 통해 모델 선택하기
     // Firebase 원격 구성
     private fun configureRemoteConfig() {
@@ -254,11 +299,23 @@ class LivePreviewActivity :
         remoteConfig.setConfigSettingsAsync(configSettings)
     }
 
-    // 모델 적용하여 실행
+    // RemoteModel 적용하여 실행
     private fun startObjectDetectorWithRemoteModel(remoteModel: CustomRemoteModel) {
         val customObjectDetectorOptions =
             PreferenceUtils.getCustomObjectDetectorOptionsForLivePreviewWithRemoteModel(this, remoteModel)
         Log.d("확인", "옵션: ${customObjectDetectorOptions}")
+        Log.d("확인", "Remote 실행함수")
+        cameraSource!!.setMachineLearningFrameProcessor(
+            ObjectDetectorProcessor(this, customObjectDetectorOptions)
+        )
+    }
+
+    // LocalModel 적용하여 실행
+    private fun startObjectDetectorWithLocalModel(localModel: LocalModel) {
+        val customObjectDetectorOptions =
+            PreferenceUtils.getCustomObjectDetectorOptionsForLivePreview(this, localModel)
+        Log.d("확인", "옵션: ${customObjectDetectorOptions}")
+        Log.d("확인", "Local 실행함수")
         cameraSource!!.setMachineLearningFrameProcessor(
             ObjectDetectorProcessor(this, customObjectDetectorOptions)
         )
