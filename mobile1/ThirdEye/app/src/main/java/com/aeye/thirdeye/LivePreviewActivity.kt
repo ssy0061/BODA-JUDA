@@ -119,7 +119,7 @@ class LivePreviewActivity :
 
     }
 
-    private fun createCameraSource(model: String) {
+    private fun createCameraSource(model: String, isLocalModel: Boolean = false) {
         // If there's no existing cameraSource, create one.
         if (cameraSource == null) {
             cameraSource = CameraSource(this, graphicOverlay)
@@ -135,10 +135,17 @@ class LivePreviewActivity :
                 }
                 OBJECT_DETECTION_CUSTOM -> {
                     Log.i("확인", "Using Custom Object Detector Processor")
-                    // local model은 상단에 있음
-                    // 다운로드 확인 & 실행
-                    checkModelAndStart()
 
+                    // local model은 상단에 있음
+                    // isLocalModel의 값으로 objectDetectorOption 생성
+                    val objectDetectorOption = if(isLocalModel) {
+                        PreferenceUtils.getCustomObjectDetectorOptionsForLivePreview(this, aEyeLocalModel)
+                    } else {
+                        PreferenceUtils.getCustomObjectDetectorOptionsForLivePreviewWithRemoteModel(this, aEyeRemoteModel)
+                    }
+                    cameraSource!!.setMachineLearningFrameProcessor(
+                        ObjectDetectorProcessor(this, objectDetectorOption)
+                    )
                 }
                 CUSTOM_AUTOML_OBJECT_DETECTION -> {
                     Log.i(TAG, "Using Custom AutoML Object Detector Processor")
