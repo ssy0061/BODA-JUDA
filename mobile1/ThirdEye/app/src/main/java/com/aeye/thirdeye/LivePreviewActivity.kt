@@ -189,7 +189,7 @@ class LivePreviewActivity :
                     // 모델 다운로드 확인 & 다운로드
                     checkRemoteModel(modelName)
                 } else {
-                    // TODO: 로컬 모델로 createCameraSource()
+                    createCameraSource(selectedModel, isLocalModel = true)
                     showToast("Failed to fetch model name.")
                     Log.d("확인", "연결 실패")
                 }
@@ -347,7 +347,7 @@ class LivePreviewActivity :
     public override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume")
-        createCameraSource(selectedModel)
+        //createCameraSource(selectedModel)
         startCameraSource()
     }
 
