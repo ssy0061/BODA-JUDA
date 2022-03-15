@@ -223,11 +223,12 @@ class LivePreviewActivity :
                     downloadRemoteModel(remoteModelManager, aEyeRemoteModel)
                 } else {
                     Log.d("확인", "다운받은 RemoteModel로 실행(checkRemoteModel)")
-                    startObjectDetectorWithRemoteModel(aEyeRemoteModel)
+                    createCameraSource(selectedModel)
                 }
             }
             .addOnFailureListener {
                 Log.d("확인", "다운로드 확인 불가")
+                createCameraSource(selectedModel, isLocalModel = true)
             }
     }
 
