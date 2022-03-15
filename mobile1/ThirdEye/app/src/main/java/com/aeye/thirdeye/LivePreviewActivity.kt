@@ -68,9 +68,6 @@ class LivePreviewActivity :
         Log.d(TAG, "onCreate")
         setContentView(R.layout.activity_live_preview)
 
-        // 모델 다운로드 확인 & 모델 다운로드
-        getModelName()
-
         init()
 
         if(!allRuntimePermissionsGranted()) {
@@ -78,7 +75,8 @@ class LivePreviewActivity :
         }
 
         if(isCameraPermissionAccepted()) {
-            createCameraSource(selectedModel)
+            // 모델 다운로드 확인 & 모델 다운로드
+            getModelName()
         } else {
             showToast("카메라 권한을 켜주세요")
             TextToSpeechUtil(this, "카메라 권한을 켜주세요")
@@ -197,7 +195,10 @@ class LivePreviewActivity :
         }
     }
 
-    // 원격 구성 모델 이름 가져오기
+    /**
+     * 모델 이름을 로딩 성공 -> 해당 이름의 리모트 모델 존재 여부 확인
+     * 실패 -> 로컬 모델로 createCameraSource
+     */
     private fun getModelName() {
         var modelName: String
         configureRemoteConfig()
@@ -209,13 +210,21 @@ class LivePreviewActivity :
                     // 모델 다운로드 확인 & 다운로드
                     checkRemoteModel(modelName)
                 } else {
+                    // TODO: 로컬 모델로 createCameraSource()
                     showToast("Failed to fetch model name.")
                     Log.d("확인", "연결 실패")
                 }
             }
     }
 
-    // firebase 모델 다운로드 확인 & 다운로드
+    /**
+     * 모델 이름으로 기기에 모델이 있는지 확인
+     * 있다면 -> 해당 모델로 createCameraSource()
+     * 없다면 다운로드 실행
+     *
+     * 확인 불가 -> 로컬모델로 createCameraSource()
+     */
+
     private fun checkRemoteModel(modelName: String) {
 
         aEyeRemoteModel =
@@ -243,7 +252,11 @@ class LivePreviewActivity :
             }
     }
 
-    // firebase 모델 다운로드
+    /**
+     * todo: 와이파이 연결 필수인지 check
+     * 다운로드 성공 -> 다운받은 모델로 createCameraSource()
+     * 실패 -> 로컬모델로 createCameraSource()
+     */
     private fun downloadRemoteModel(manager: RemoteModelManager, remoteModel: CustomRemoteModel) {
         val downloadConditions = DownloadConditions.Builder()
             .requireWifi()
