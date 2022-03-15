@@ -48,7 +48,7 @@ import java.util.ArrayList
 /** Live preview demo for ML Kit APIs. */
 @KeepName
 class LivePreviewActivity :
-    AppCompatActivity() {
+    AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
 
     private var cameraSource: CameraSource? = null
     private var preview: CameraSourcePreview? = null
@@ -72,14 +72,11 @@ class LivePreviewActivity :
 
         if(!allRuntimePermissionsGranted()) {
             getRuntimePermissions()
-        }
-
-        if(isCameraPermissionAccepted()) {
+            showToast("권한을 허용해주세요")
+            TextToSpeechUtil(this, "권한을 허용해주세요")
+        } else {
             // 모델 다운로드 확인 & 모델 다운로드
             getModelName()
-        } else {
-            showToast("카메라 권한을 켜주세요")
-            TextToSpeechUtil(this, "카메라 권한을 켜주세요")
         }
     }
 
@@ -146,6 +143,7 @@ class LivePreviewActivity :
                     cameraSource!!.setMachineLearningFrameProcessor(
                         ObjectDetectorProcessor(this, objectDetectorOption)
                     )
+                    startCameraSource()
                 }
                 CUSTOM_AUTOML_OBJECT_DETECTION -> {
                     Log.i(TAG, "Using Custom AutoML Object Detector Processor")
@@ -391,6 +389,20 @@ class LivePreviewActivity :
             }
         }
         return true
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        for(permission in permissions) {
+            if(permission == Manifest.permission.CAMERA && grantResults[permissions.indexOf(permission)] == PackageManager.PERMISSION_GRANTED) {
+                getModelName()
+            }
+        }
     }
 
     private fun getRuntimePermissions() {
