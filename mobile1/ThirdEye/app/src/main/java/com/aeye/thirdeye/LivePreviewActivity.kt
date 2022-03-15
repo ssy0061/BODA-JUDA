@@ -48,7 +48,7 @@ import java.util.ArrayList
 /** Live preview demo for ML Kit APIs. */
 @KeepName
 class LivePreviewActivity :
-    AppCompatActivity(), OnItemSelectedListener, CompoundButton.OnCheckedChangeListener {
+    AppCompatActivity() {
 
     private var cameraSource: CameraSource? = null
     private var preview: CameraSourcePreview? = null
@@ -117,34 +117,6 @@ class LivePreviewActivity :
             }
         }
 
-    }
-
-    @Synchronized
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-        // An item was selected. You can retrieve the selected item using
-        // parent.getItemAtPosition(pos)
-        selectedModel = parent?.getItemAtPosition(pos).toString()
-        Log.d(TAG, "Selected model: $selectedModel")
-        preview?.stop()
-        createCameraSource(selectedModel)
-        startCameraSource()
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        // Do nothing.
-    }
-
-    override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-        Log.d(TAG, "Set facing")
-        if (cameraSource != null) {
-            if (isChecked) {
-                cameraSource?.setFacing(CameraSource.CAMERA_FACING_FRONT)
-            } else {
-                cameraSource?.setFacing(CameraSource.CAMERA_FACING_BACK)
-            }
-        }
-        preview?.stop()
-        startCameraSource()
     }
 
     private fun createCameraSource(model: String) {
