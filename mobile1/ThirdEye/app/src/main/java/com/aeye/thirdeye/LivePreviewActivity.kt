@@ -48,7 +48,7 @@ import java.util.ArrayList
 /** Live preview demo for ML Kit APIs. */
 @KeepName
 class LivePreviewActivity :
-    AppCompatActivity(), OnItemSelectedListener, CompoundButton.OnCheckedChangeListener {
+    AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
 
     private var cameraSource: CameraSource? = null
     private var preview: CameraSourcePreview? = null
@@ -68,20 +68,15 @@ class LivePreviewActivity :
         Log.d(TAG, "onCreate")
         setContentView(R.layout.activity_live_preview)
 
-        // 모델 다운로드 확인 & 모델 다운로드
-        getModelName()
-
         init()
 
         if(!allRuntimePermissionsGranted()) {
             getRuntimePermissions()
-        }
-
-        if(isCameraPermissionAccepted()) {
-            createCameraSource(selectedModel)
+            showToast("권한을 허용해주세요")
+            TextToSpeechUtil(this, "권한을 허용해주세요")
         } else {
-            showToast("카메라 권한을 켜주세요")
-            TextToSpeechUtil(this, "카메라 권한을 켜주세요")
+            // 모델 다운로드 확인 & 모델 다운로드
+            getModelName()
         }
     }
 
@@ -121,35 +116,7 @@ class LivePreviewActivity :
 
     }
 
-    @Synchronized
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-        // An item was selected. You can retrieve the selected item using
-        // parent.getItemAtPosition(pos)
-        selectedModel = parent?.getItemAtPosition(pos).toString()
-        Log.d(TAG, "Selected model: $selectedModel")
-        preview?.stop()
-        createCameraSource(selectedModel)
-        startCameraSource()
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        // Do nothing.
-    }
-
-    override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-        Log.d(TAG, "Set facing")
-        if (cameraSource != null) {
-            if (isChecked) {
-                cameraSource?.setFacing(CameraSource.CAMERA_FACING_FRONT)
-            } else {
-                cameraSource?.setFacing(CameraSource.CAMERA_FACING_BACK)
-            }
-        }
-        preview?.stop()
-        startCameraSource()
-    }
-
-    private fun createCameraSource(model: String) {
+    private fun createCameraSource(model: String, isLocalModel: Boolean = false) {
         // If there's no existing cameraSource, create one.
         if (cameraSource == null) {
             cameraSource = CameraSource(this, graphicOverlay)
@@ -165,10 +132,18 @@ class LivePreviewActivity :
                 }
                 OBJECT_DETECTION_CUSTOM -> {
                     Log.i("확인", "Using Custom Object Detector Processor")
-                    // local model은 상단에 있음
-                    // 다운로드 확인 & 실행
-                    checkModelAndStart()
 
+                    // local model은 상단에 있음
+                    // isLocalModel의 값으로 objectDetectorOption 생성
+                    val objectDetectorOption = if(isLocalModel) {
+                        PreferenceUtils.getCustomObjectDetectorOptionsForLivePreview(this, aEyeLocalModel)
+                    } else {
+                        PreferenceUtils.getCustomObjectDetectorOptionsForLivePreviewWithRemoteModel(this, aEyeRemoteModel)
+                    }
+                    cameraSource!!.setMachineLearningFrameProcessor(
+                        ObjectDetectorProcessor(this, objectDetectorOption)
+                    )
+                    startCameraSource()
                 }
                 CUSTOM_AUTOML_OBJECT_DETECTION -> {
                     Log.i(TAG, "Using Custom AutoML Object Detector Processor")
@@ -197,7 +172,10 @@ class LivePreviewActivity :
         }
     }
 
-    // 원격 구성 모델 이름 가져오기
+    /**
+     * 모델 이름을 로딩 성공 -> 해당 이름의 리모트 모델 존재 여부 확인
+     * 실패 -> 로컬 모델로 createCameraSource
+     */
     private fun getModelName() {
         var modelName: String
         configureRemoteConfig()
@@ -209,13 +187,21 @@ class LivePreviewActivity :
                     // 모델 다운로드 확인 & 다운로드
                     checkRemoteModel(modelName)
                 } else {
+                    createCameraSource(selectedModel, isLocalModel = true)
                     showToast("Failed to fetch model name.")
                     Log.d("확인", "연결 실패")
                 }
             }
     }
 
-    // firebase 모델 다운로드 확인 & 다운로드
+    /**
+     * 모델 이름으로 기기에 모델이 있는지 확인
+     * 있다면 -> 해당 모델로 createCameraSource()
+     * 없다면 다운로드 실행
+     *
+     * 확인 불가 -> 로컬모델로 createCameraSource()
+     */
+
     private fun checkRemoteModel(modelName: String) {
 
         aEyeRemoteModel =
@@ -235,15 +221,20 @@ class LivePreviewActivity :
                     downloadRemoteModel(remoteModelManager, aEyeRemoteModel)
                 } else {
                     Log.d("확인", "다운받은 RemoteModel로 실행(checkRemoteModel)")
-                    startObjectDetectorWithRemoteModel(aEyeRemoteModel)
+                    createCameraSource(selectedModel)
                 }
             }
             .addOnFailureListener {
                 Log.d("확인", "다운로드 확인 불가")
+                createCameraSource(selectedModel, isLocalModel = true)
             }
     }
 
-    // firebase 모델 다운로드
+    /**
+     * todo: 와이파이 연결 필수인지 check
+     * 다운로드 성공 -> 다운받은 모델로 createCameraSource()
+     * 실패 -> 로컬모델로 createCameraSource()
+     */
     private fun downloadRemoteModel(manager: RemoteModelManager, remoteModel: CustomRemoteModel) {
         val downloadConditions = DownloadConditions.Builder()
             .requireWifi()
@@ -253,11 +244,11 @@ class LivePreviewActivity :
                 Log.d("확인", "다운로드 성공")
                 // 다운로드가 느려서 완료되면 다운받은 RemoteModel로 실행
                 Log.d("확인", "다운받은 RemoteModel로 실행(downloadRemoteModel)")
-                startObjectDetectorWithRemoteModel(aEyeRemoteModel)
-
+                createCameraSource(selectedModel)
             }
             .addOnFailureListener {
                 Log.d("확인", "다운로드 실패")
+                createCameraSource(selectedModel, isLocalModel = true)
             }
     }
 
@@ -355,7 +346,7 @@ class LivePreviewActivity :
     public override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume")
-        createCameraSource(selectedModel)
+        //createCameraSource(selectedModel)
         startCameraSource()
     }
 
@@ -398,6 +389,20 @@ class LivePreviewActivity :
             }
         }
         return true
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        for(permission in permissions) {
+            if(permission == Manifest.permission.CAMERA && grantResults[permissions.indexOf(permission)] == PackageManager.PERMISSION_GRANTED) {
+                getModelName()
+            }
+        }
     }
 
     private fun getRuntimePermissions() {
