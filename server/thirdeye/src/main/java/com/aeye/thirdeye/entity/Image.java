@@ -13,7 +13,8 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor//(access = AccessLevel.PROTECTED)
 public class Image {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     @Size(max = 200)
@@ -38,6 +39,12 @@ public class Image {
     private String Provider;
 
     // 바운딩 박스 필요시 추가 예정
+    private double L_X;
 
+    private double L_Y;
+
+    private double R_X;
+
+    private double R_Y;
 }
 
