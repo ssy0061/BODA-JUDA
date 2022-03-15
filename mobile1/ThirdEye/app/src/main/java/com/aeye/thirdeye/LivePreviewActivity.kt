@@ -246,11 +246,11 @@ class LivePreviewActivity :
                 Log.d("확인", "다운로드 성공")
                 // 다운로드가 느려서 완료되면 다운받은 RemoteModel로 실행
                 Log.d("확인", "다운받은 RemoteModel로 실행(downloadRemoteModel)")
-                startObjectDetectorWithRemoteModel(aEyeRemoteModel)
-
+                createCameraSource(selectedModel)
             }
             .addOnFailureListener {
                 Log.d("확인", "다운로드 실패")
+                createCameraSource(selectedModel, isLocalModel = true)
             }
     }
 
