@@ -30,6 +30,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.aeye.thirdeye.objectdetector.ObjectDetectorProcessor
 import com.aeye.thirdeye.preference.PreferenceUtils
+import com.aeye.thirdeye.sound.SoundAlarmUtil
 import com.aeye.thirdeye.vibrator.TextToSpeechUtil
 import com.google.android.gms.common.annotation.KeepName
 import com.google.firebase.ktx.Firebase
@@ -341,6 +342,16 @@ class LivePreviewActivity :
                 cameraSource = null
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        SoundAlarmUtil.load(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        SoundAlarmUtil.release()
     }
 
     public override fun onResume() {
