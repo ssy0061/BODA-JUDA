@@ -68,7 +68,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/outlinedTextField_password"
+        android:id="@+id/outlinedTextField_update_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Password"
@@ -79,7 +79,7 @@
         android:layout_marginEnd="@dimen/padding_page">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/password"
+            android:id="@+id/update_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
@@ -92,7 +92,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Log In"
-        app:layout_constraintTop_toBottomOf="@id/outlinedTextField_password"
+        app:layout_constraintTop_toBottomOf="@id/outlinedTextField_update_email"
         android:layout_marginTop="@dimen/margin_top_related"
         android:layout_marginStart="@dimen/padding_page"
         android:layout_marginEnd="@dimen/padding_page" />
