@@ -120,7 +120,25 @@ class UserRepository {
 //        }
 //    }
 
+<<<<<<< mobile2/NextLabel/app/src/main/java/com/aeye/nextlabel/repository/UserRepository.kt
     private fun getBody(name: String, value: Any): MultipartBody.Part {
         return MultipartBody.Part.createFormData(name, value.toString())
+=======
+    suspend fun getLeaderBoard(page: Int, size: Int): Resource<LeaderBoardResponse> {
+        return try {
+            val response = userApi.getLeaderBoard(page, size)
+            if (response.isSuccessful) {
+                return if(response.code() == 201) {
+                    Resource.success(response.body()!!)
+                } else {
+                    Resource.error(null, "message 1")
+                }
+            } else {
+                Resource.error(null, "message 2")
+            }
+        } catch (e: Exception) {
+            Resource.error(null, "message 3")
+        }
+>>>>>>> mobile2/NextLabel/app/src/main/java/com/aeye/nextlabel/repository/UserRepository.kt
     }
 }
