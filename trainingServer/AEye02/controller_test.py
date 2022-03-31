@@ -11,7 +11,7 @@ from slack_post import image_upload
 from slack_sdk import WebClient
 import datetime as dt
 
-ORIGIN_IMAGE_PATH = '/home/team1/AEye/data/image/snack_1'
+ORIGIN_IMAGE_PATH = '/home/team1/AEye/data/image/snack_30'
 INPUT_IMAGE_PATH = ORIGIN_IMAGE_PATH + '_rota'
 MODEL_PATH = '/home/team1/AEye/model_float16'
 KEY_PATH = '/home/team1/AEye/keys'
@@ -23,9 +23,16 @@ REMOTE_CONFIG_URL = BASE_URL + '/' + REMOTE_CONFIG_ENDPOINT
 JSON_PATH = '/home/team1/AEye/remote_config_info/config.json'
 SLACK_TOKEN = "xoxb-3304749042240-3295636403457-PND6zGxAgmSk7NhoQYSnINeF"
 
-# 이미지 전처리 수행 ------------------------------------------------------------------
-dir_list = im(ORIGIN_IMAGE_PATH)
+# config.json 파일 읽기 ---------------------------------------------------------------------------
+_get()
 
-tmp = ''
-for i, dir_idx in enumerate(dir_list):
-   tmp += f'idx : {i:>3d}, category : {dir_list[dir_idx].split("_")[1]} \n'
+with open(JSON_PATH) as f:
+   json_data = json.load(f)
+# print(json_data)
+# print(json.dumps(json_data, indent="\t") )
+
+# config.json 파일 파라미터 수정 ------------------------------------------------------
+model_name = json_data['parameters']['next_model']['defaultValue']['value']
+next_name = 'snack_v' + str(int(model_name.split('_v')[1])+1)
+
+smm(model_name,INPUT_IMAGE_PATH,MODEL_PATH,KEY_PATH, KEY_NAME)
