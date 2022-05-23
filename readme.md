@@ -1,6 +1,6 @@
 # **BODA / JUDA**
 
-<img src="/uploads/25e11bfce5f4ea8897ce6aa91ad4f819/image.png" alt="BODA-logos_transparent_흰배경" width="400" height="400"/>
+<img src="https://user-images.githubusercontent.com/87461692/169805322-76a9e41c-322e-46ce-bba1-ab0fc24f9a12.png" alt="BODA-logos_transparent_흰배경" width="400" height="400"/>
 <img src="/uploads/1485627ac32411e36128e1670f63843c/image.png" alt="JUDA-logos_transparent_흰배경" width="400" height="400"/>
 
  ### **세상을 이해하는 또다른 눈, BODA** / **세상을 보여주는 경험, JUDA**<br>
