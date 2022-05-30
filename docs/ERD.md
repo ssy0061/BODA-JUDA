@@ -8,7 +8,7 @@
 
 
 ## ERD
-![image](/uploads/b0656fdbb07eff90a37bd9e9abe7bebc/image.png)
+![image](https://user-images.githubusercontent.com/87461692/170898049-99276f60-7d67-4ba0-8653-910e605c77bf.png)
 
 
 

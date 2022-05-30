@@ -84,7 +84,7 @@
         - Android Gradle plugin version: 7.1.2
         - Gradle version: 7.4.1
         - Compile sdk version: 31
-    <br>
+        <br>
 
 ### **디자인**
 
@@ -208,8 +208,8 @@ main
 
 - [Notion ( 공유 / 메모 )](https://www.notion.so/aeye/AEye-473dcc17ae144a3fb7e23d0c548d0f62)
 - [컨벤션](./docs/컨벤션.md)
-- [기획서](./docs/프로젝트%20계획서.pdf)
-- [요구사항 명세서](./docs/요구사항%20명세서.md)
+- [기획서](./docs/프로젝트_계획서.pdf)
+- [요구사항 명세서](./docs/요구사항_명세서.md)
 - [시퀀스 다이어그램](./docs/시퀀스다이어그램.md)
 - [아키텍처](./docs/아키텍처.md)
 - [와이어프레임(디자인)](./docs/와이어프레임.md)
