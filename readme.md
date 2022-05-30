@@ -1,7 +1,7 @@
 # **BODA / JUDA**
 
 <img src="https://user-images.githubusercontent.com/87461692/169805322-76a9e41c-322e-46ce-bba1-ab0fc24f9a12.png" alt="BODA-logos_transparent_흰배경" width="400" height="400"/>
-<img src="/uploads/1485627ac32411e36128e1670f63843c/image.png" alt="JUDA-logos_transparent_흰배경" width="400" height="400"/>
+<img src="https://user-images.githubusercontent.com/87461692/170896623-d32c4c8e-4cb9-43d1-a784-c71527ceecdd.png" alt="JUDA-logos_transparent_흰배경" width="400" height="400"/>
 
  ### **세상을 이해하는 또다른 눈, BODA** / **세상을 보여주는 경험, JUDA**<br>
 > **BODA** <br> 
@@ -91,14 +91,13 @@
 ### **디자인**
 
 **app1 ( BODA )**
-
 <br>
-<img src="/uploads/52f44d05ef78d92f20171abb922519f5/image.png" alt="BODA_영상" width="400" height="700" />
+<img src="https://user-images.githubusercontent.com/87461692/170897491-eac61c79-3422-4fad-a42f-643957028c60.gif" alt="BODA_영상" width="400" height="700" />
 <br><br>
 
 **app2 ( JUDA )**
 <br>
-![image](/uploads/fb64c81e44772a3eafc8692570a76196/image.png)
+![JUDA](https://user-images.githubusercontent.com/87461692/170896935-e060212e-4bd3-4277-9937-ee3554449737.gif)
 <br><br>
 
 ## **2️⃣ 프로젝트 파일 구조**
@@ -211,8 +210,8 @@ main
 
 - [Notion ( 공유 / 메모 )](https://www.notion.so/aeye/AEye-473dcc17ae144a3fb7e23d0c548d0f62)
 - [컨벤션](./docs/컨벤션.md)
-- [기획서](./docs/프로젝트 계획서.pdf)
-- [요구사항 명세서](./docs/요구사항 명세서.md)
+- [기획서](./docs/프로젝트_계획서.pdf)
+- [요구사항 명세서](./docs/요구사항_명세서.md)
 - [시퀀스 다이어그램](./docs/시퀀스다이어그램.md)
 - [아키텍처](./docs/아키텍처.md)
 - [와이어프레임(디자인)](./docs/와이어프레임.md)
@@ -225,4 +224,3 @@ main
 
 - [포팅메뉴얼](./exec/AEye_포팅매뉴얼.pdf)
 - [시연 시나리오](./exec/AEye_시연시나리오.pdf)
-- [최종발표자료](./pt/전자연계 최종발표.pptx)
