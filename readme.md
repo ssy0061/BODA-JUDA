@@ -1,7 +1,7 @@
 # **BODA / JUDA**
 
-<img src="https://user-images.githubusercontent.com/87461692/169805322-76a9e41c-322e-46ce-bba1-ab0fc24f9a12.png" alt="BODA-logos_transparent_흰배경" width="400" height="400"/>
-<img src="https://user-images.githubusercontent.com/87461692/170896623-d32c4c8e-4cb9-43d1-a784-c71527ceecdd.png" alt="JUDA-logos_transparent_흰배경" width="400" height="400"/>
+<img src="https://user-images.githubusercontent.com/87461692/169805322-76a9e41c-322e-46ce-bba1-ab0fc24f9a12.png" alt="BODA-logos_transparent_흰배경" width="300" height="300"/>
+<img src="https://user-images.githubusercontent.com/87461692/170896623-d32c4c8e-4cb9-43d1-a784-c71527ceecdd.png" alt="JUDA-logos_transparent_흰배경" width="300" height="300"/>
 
  ### **세상을 이해하는 또다른 눈, BODA** / **세상을 보여주는 경험, JUDA**<br>
 > **BODA** <br> 
@@ -210,8 +210,8 @@ main
 
 - [Notion ( 공유 / 메모 )](https://www.notion.so/aeye/AEye-473dcc17ae144a3fb7e23d0c548d0f62)
 - [컨벤션](./docs/컨벤션.md)
-- [기획서](./docs/프로젝트_계획서.pdf)
-- [요구사항 명세서](./docs/요구사항_명세서.md)
+- [기획서](./docs/프로젝트%20계획서.pdf)
+- [요구사항 명세서](./docs/요구사항%20명세서.md)
 - [시퀀스 다이어그램](./docs/시퀀스다이어그램.md)
 - [아키텍처](./docs/아키텍처.md)
 - [와이어프레임(디자인)](./docs/와이어프레임.md)
